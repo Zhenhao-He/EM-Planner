@@ -12,8 +12,8 @@
 void FrenetToCartesian(std::vector<TrajectoryPoint>& frenet_path,
                        std::vector<TrajectoryPoint>& ref_cartesian_path) {
   TrajectoryPoint proj_site;
-  for (unsigned int iter_frenet = 0; iter_frenet < frenet_path.size();
-       ++iter_frenet) {
+  for (unsigned int iter_frenet = 0; iter_frenet < frenet_path.size();++iter_frenet) 
+  {
     //根据s匹配最近的参考点
     proj_site = FindFrenetProjPoint(ref_cartesian_path,
                                     frenet_path[iter_frenet].frenet_info.s);
@@ -41,26 +41,32 @@ void FrenetToCartesian(const double& rs, const double& rx, const double& ry,
   x = rx - sin_theta_r * d_condition;
   y = ry + cos_theta_r * d_condition;
 }
-
+//输入：一条带有 Frenet s 值的参考轨迹 + 某个目标 s
+//输出：该 s 在轨迹上的对应点的全局坐标和朝向（插值获得）
 TrajectoryPoint FindFrenetProjPoint(
     const std::vector<TrajectoryPoint>& ref_cartesian_path, const double& s) {
   double min_dis = 9999.0;
-  TrajectoryPoint proj_site;
+  TrajectoryPoint proj_site;//初始化一个投影点，用来保存最终结果
+  //逐对轨迹点进行检查，寻找目标 s 落在哪两点之间
   for (unsigned int index = 0; index < ref_cartesian_path.size() - 1; ++index) {
+    //如果 s 已经超过轨迹末尾，直接返回末尾点当作投影点
     if (s > ref_cartesian_path.back().frenet_info.s) {
       proj_site = std::move(ref_cartesian_path.back());
     }
+    //确定 s 介于 index 与 index+1 间，接下来开始算精确位置
     if (s >= ref_cartesian_path[index].frenet_info.s &&
         s < ref_cartesian_path[index + 1].frenet_info.s) {
-      //线性插值得到投影点的site
       proj_site.frenet_info.s = s;
+      //proportion 是在区间中的相对长度权重，范围 0 到 1： 0 表示完全靠前一个点 1 表示完全靠后一个点
       double proportion = (s - ref_cartesian_path[index].frenet_info.s) /
                           (ref_cartesian_path[index + 1].frenet_info.s -
                            ref_cartesian_path[index].frenet_info.s);
+      //线性插值计算全局坐标
       proj_site.xg = (1 - proportion) * ref_cartesian_path[index].xg +
                      proportion * ref_cartesian_path[index + 1].xg;
       proj_site.yg = (1 - proportion) * ref_cartesian_path[index].yg +
                      proportion * ref_cartesian_path[index + 1].yg;
+      //线性插值计算朝向角，注意处理角度跳变问题，如果差超过 2π，直接取后一个角，当成未跳变处理【可以进一步优化】
       if (std::fabs(ref_cartesian_path[index].global_angle -
                     ref_cartesian_path[index + 1].global_angle) >= 6.28) {
         proj_site.global_angle = ref_cartesian_path[index + 1].global_angle;
@@ -72,7 +78,7 @@ TrajectoryPoint FindFrenetProjPoint(
       break;
     }
   }
-  return proj_site;
+  return proj_site;//投影点已经获得 s + xg + yg + global_angle 等信息
 }
 
 void CartesianToFrenet(std::vector<TrajectoryPoint>& cartesian_path,
@@ -180,13 +186,13 @@ void getProjectPoint(TrajectoryPoint hostPoint, TrajectoryPoint& matchPoint,
                                    ? matchPoint.frenet_info.s + s_temp
                                    : matchPoint.frenet_info.s - s_temp;
 }
-
+//将参考轨迹 Frenet s 坐标系以车辆当前位置为原点重新校准，让路径规划可以基于相对 s 而不是全局 s
 void updateRefLineS(TrajectoryPoint& start_point,
                     std::vector<TrajectoryPoint>& ref_path) {
   int match_index = getMatchPoint(start_point, ref_path);
   TrajectoryPoint proj_point;
-  getProjectPoint(start_point, ref_path[match_index], proj_point);
+  getProjectPoint(start_point, ref_path[match_index], proj_point);//把车辆在轨迹上的位置精确定位到参考路径上的“最近点”，得到对应的 Frenet s
   for (auto& p : ref_path) {
-    p.frenet_info.s -= proj_point.frenet_info.s;
+    p.frenet_info.s -= proj_point.frenet_info.s;//把车辆当前位置作为 Frenet s 的 0 点
   }
 }

@@ -11,7 +11,8 @@
 #include <sstream>
 
 #include "../../common/cartesian_frenet_conversion.h"
-#include "../../common/eigen3/Eigen/Dense"
+#include <Eigen/Dense>
+
 #include "iostream"
 
 struct DpSpeedConfig {

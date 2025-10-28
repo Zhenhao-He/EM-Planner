@@ -64,7 +64,9 @@ void EMPlanner::Plan() {
       {start_point_.frenet_info.l, start_point_.frenet_info.l_ds,
        start_point_.frenet_info.l_dds});
   qp_path_ = dp_path_;
+
   bool qp_success = sl_qp.Optimize(qp_path_);
+
   FrenetToCartesian(qp_path_, referenceLine_);
   bool flag_qp = ComputePathProfile(qp_path_);
 

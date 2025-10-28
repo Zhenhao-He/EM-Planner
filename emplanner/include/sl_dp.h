@@ -11,7 +11,8 @@
 #include <sstream>
 
 #include "../../common/data_struct.h"
-#include "../../common/eigen3/Eigen/Dense"
+#include <Eigen/Dense>
+
 #include "iostream"
 
 struct DpPathConfig {

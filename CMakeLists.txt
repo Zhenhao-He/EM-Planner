@@ -1,37 +1,60 @@
-cmake_minimum_required (VERSION 3.2)
-project (planner_experiment)
+cmake_minimum_required(VERSION 3.10)
+project(planner_experiment)
 
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_BUILD_TYPE Debug)
 
-find_package(Python3 3.8 COMPONENTS Interpreter Development NumPy REQUIRED)
+# === Python3 with NumPy ===
+find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 
-set(EIGEN_LIB "common/eigen3")
-set(OSQP_LIB "common/osqp")
+# === Eigen3 ===
+find_package(Eigen3 REQUIRED)
 
-include_directories({PYTHON_INCLUDE_DIRS} 
-                    include/
-                    common/
-                    scenario/
-                    ${EIGEN_LIB}
-                    emplanner/include
-                    ${OSQP_LIB}/include)
-add_executable(${CMAKE_PROJECT_NAME}  
-                main.cpp
-                scenario/src/sce1.cpp
-                scenario/src/sce2.cpp
-                scenario/src/sce3.cpp
-                common/cartesian_frenet_conversion.cc
-                common/discrete_points_math.cc
-                emplanner/src/em_planner.cpp
-                emplanner/src/sl_dp.cpp
-                emplanner/src/sl_qp.cpp
-                emplanner/src/st_dp.cpp
-                emplanner/src/st_qp.cpp)
-target_link_directories(${CMAKE_PROJECT_NAME}   PRIVATE
-  ${OSQP_LIB}/lib
+# === OSQP ===
+find_package(osqp REQUIRED)
+set(MATPLOTLIBCPP_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/../matplotlib-cpp")
+include_directories(${MATPLOTLIBCPP_INCLUDE_DIR})
+# === matplotlib-cpp ===
+# 你可以通过 apt 或手动安装:
+# sudo apt install libmatplotlib-cpp-dev
+# 如果没安装，就把 include 路径指向系统的 matplotlibcpp.hpp 所在目录
+find_path(MATPLOTLIBCPP_INCLUDE_DIR matplotlibcpp.h)
+if (NOT MATPLOTLIBCPP_INCLUDE_DIR)
+  message(WARNING "matplotlibcpp.h not found, please install or specify path manually")
+endif()
+
+# === Include directories ===
+include_directories(
+  include
+  scenario
+  emplanner/include
+  ${EIGEN3_INCLUDE_DIRS}
+  ${MATPLOTLIBCPP_INCLUDE_DIR}
+  ${Python3_INCLUDE_DIRS}
 )
 
-target_link_libraries(${CMAKE_PROJECT_NAME} 
-                        Python3::Python
-                       Python3::NumPy
-                       osqp)
+# === Source files ===
+add_executable(${PROJECT_NAME}
+  main.cpp
+  scenario/src/sce3.cpp
+  common/cartesian_frenet_conversion.cc
+  common/discrete_points_math.cc
+  emplanner/src/em_planner.cpp
+  emplanner/src/sl_dp.cpp
+  emplanner/src/sl_qp.cpp
+  emplanner/src/st_dp.cpp
+  emplanner/src/st_qp.cpp
+)
+
+# === Link libraries ===
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+  Python3::Python
+  Python3::NumPy
+  osqp::osqp
+)
+
+# === Optional message ===
+message(STATUS "Python3 include dir: ${Python3_INCLUDE_DIRS}")
+message(STATUS "Eigen3 include dir: ${EIGEN3_INCLUDE_DIRS}")
+message(STATUS "matplotlibcpp include dir: ${MATPLOTLIBCPP_INCLUDE_DIR}")

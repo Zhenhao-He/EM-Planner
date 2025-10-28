@@ -11,8 +11,6 @@
 
 #include "../common/matplotlibcpp.h"
 #include "../emplanner/include/em_planner.h"
-#include "scenario/include/sce1.h"
-#include "scenario/include/sce2.h"
 #include "scenario/include/sce3.h"
 
 namespace plt = matplotlibcpp;

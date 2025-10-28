@@ -13,7 +13,8 @@
 #include <utility>
 
 #include "../../common/data_struct.h"
-#include "../../common/osqp/include/osqp.h"
+
+#include <osqp/osqp.h>
 
 class PiecewiseJerkPathProblem {
  public:

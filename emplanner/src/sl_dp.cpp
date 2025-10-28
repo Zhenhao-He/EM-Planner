@@ -157,7 +157,7 @@ double FrenetDpPath::calcObsCost(double w_cost_obs, double square_dist) {
     cost = 0;
   return cost;
 }
-
+//给定一个稀疏的初始轨迹 init_path（每个点有 Frenet s/l 信息），使用五次多项式插值（quintic polynomial）生成一个 间隔为 ds 的稠密轨迹，用于后续路径规划或控制
 void FrenetDpPath::trajectoryInterp(std::vector<TrajectoryPoint> &init_path,
                                     const DpPathConfig &config) {
   if (init_path.empty()) return;

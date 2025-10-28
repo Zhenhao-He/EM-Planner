@@ -39,15 +39,14 @@ struct TrajectoryPoint {
   double x = 0;
   double y = 0;
   double angle = 0;
-  double xg = 0;
+  double xg = 0;//当前点在全局坐标系中的位置
   double yg = 0;
   double zg = 0;
-  double global_angle = 0;
+  double global_angle = 0;//全局坐标下的朝向角
   double curvature = 0;    //曲率
   double d_curvature = 0;  //曲率变化率
   int direction = 0;       // 0-前进 1-倒车
-  double length =
-      0;  //与frenet的s不同，s是相对于车辆当前位置的s，length是全局路径中的s
+  double length =0;  //与frenet的s不同，s是相对于车辆当前位置的s，length是全局路径中的s
   double v = 0;
   double a = 0;
   double t = 0;
